@@ -1,0 +1,83 @@
+{
+  "grammar": {
+    "query": ["select_query", "insert_query", "update_query", "delete_query"],
+    
+    "select_query": {
+      "sequence": [
+        "SELECT",
+        {"optional": [{"choice": ["DISTINCT", "ALL"]}]},
+        "select_list",
+        "FROM",
+        "table_references",
+        {"optional": ["WHERE", "where_condition"]},
+        {"optional": ["GROUP BY", "group_by_clause"]},
+        {"optional": ["HAVING", "having_condition"]},
+        {"optional": ["ORDER BY", "order_by_clause"]},
+        {"optional": ["LIMIT", "limit_clause"]}
+      ]
+    },
+    
+    "select_list": {
+      "sequence": ["select_item", {"repeat": [",", "select_item"]}]
+    },
+    
+    "select_item": {
+      "choice": [
+        {"sequence": ["expression", {"optional": ["AS", "alias"]}]},
+        "*",
+        {"sequence": ["table_name", ".", "*"]}
+      ]
+    },
+    
+    "table_references": {
+      "sequence": ["table_reference", {"repeat": [",", "table_reference"]}]
+    },
+    
+    "table_reference": {
+      "choice": [
+        {"sequence": ["table_name", {"optional": ["AS", "alias"]}]},
+        {"sequence": ["(", "subquery", ")", {"optional": ["AS", "alias"]}]},
+        {"sequence": ["table_reference", "join_type", "table_reference", "ON", "join_condition"]}
+      ]
+    },
+    
+    "join_type": {
+      "choice": ["INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "FULL JOIN", "CROSS JOIN"]
+    },
+    
+    "expression": {
+      "sequence": ["term", {"repeat": [{"choice": ["+", "-"]}, "term"]}]
+    },
+    
+    "term": {
+      "sequence": ["factor", {"repeat": [{"choice": ["*", "/", "%"]}, "factor"]}]
+    },
+    
+    "factor": {
+      "choice": [
+        "numeric_literal",
+        "string_literal",
+        "column_reference",
+        "function_call",
+        {"sequence": ["(", "expression", ")"]},
+        {"sequence": ["NOT", "expression"]},
+        {"sequence": ["expression", "comparison_operator", "expression"]},
+        {"sequence": ["expression", "logical_operator", "expression"]}
+      ]
+    },
+    
+    "comparison_operator": {
+      "choice": ["=", "!=", "<>", "<", "<=", ">", ">=", "LIKE", "IN", "BETWEEN"]
+    },
+    
+    "logical_operator": {
+      "choice": ["AND", "OR"]
+    },
+    
+    "terminals": {
+      "numeric_literal": {"regex": "\\d+(\\\\d+)?"},
+      "string_literal": {"regex": "'[^']*'"},
+      "identifier": {"regex": "[a-zA-Z_][a-zA-Z0-9_]*"}
+    }
+  }
+}
